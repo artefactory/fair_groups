@@ -39,7 +39,7 @@ def _asymptotic_behavior(Z, alpha):
 
     #phi gradient applied to E
     grad_phi_E_T = [E[3]/(E[1]*E[2]), -(E[0]*E[3])/(E[1]**2*E[2]), -(E[0]*E[3])/(E[1]*E[2]**2), E[0]/(E[1]*E[2])]
-    grad_phi_E_T = np.nan_to_num(grad_phi_E_T)
+    # grad_phi_E_T = np.nan_to_num(grad_phi_E_T)
 
     #confidence interval
     center, ic_inf, ic_sup = _create_IC(n, E, cov_matrix, grad_phi_E_T, alpha)
@@ -49,9 +49,10 @@ def _asymptotic_behavior(Z, alpha):
 
 def _create_IC(nb_obs, E, cov_matrix, grad_phi_E_T, alpha):
     # Construct confidence interval for DI/TPR/TNR/Sufficiency estimators
-    center = (E[0] * E[3]) / (E[1] * E[2]) if (E[1] * E[2]) else .0
+    # center = (E[0] * E[3]) / (E[1] * E[2]) if (E[1] * E[2]) else .0
+    center = (E[0] * E[3]) / (E[1] * E[2])
     sigma = np.dot(grad_phi_E_T, np.dot(cov_matrix, np.transpose(grad_phi_E_T)))
-    norm_quartile = scipy.stats.norm.ppf((1 - alpha)*.5)
+    norm_quartile = scipy.stats.norm.ppf((1 + alpha)*.5)
     inter = (sigma / nb_obs) ** .5
     radius = inter * norm_quartile
     

@@ -51,7 +51,7 @@ def di_threshold(Y, S, alpha=.95, grid_size=100):
     numpy array
         DI and its corresponding confidence interval.
     """
-    S_grid = np.linspace(np.min(S), np.max(S), grid_size, endpoint=False)
+    S_grid = np.linspace(np.min(S), np.max(S), grid_size)
     di = [_compute_di(Y, (S > s), alpha=alpha) for s in S_grid]
     
     return np.array(di), S_grid
