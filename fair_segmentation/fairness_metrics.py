@@ -2,6 +2,10 @@ import numpy as np
 import scipy
 
 
+# Threshold for Phi estimation to avoid zero division
+zero_thr = 1e-12
+
+
 def compute_phi_sp_ci(s, y, alpha=.95):
     """
     Calculate confidence interval of the estimator of [P(Y = 1 | S = 1) - P(Y = 1)] using the delta method.
@@ -29,11 +33,11 @@ def compute_phi_sp_ci(s, y, alpha=.95):
     return [center, center - radius, center + radius]
     
 
-def phi_on_grid(s, y, nb_points=100, bootstrap_ratio=1., weights=None):
+def phi_on_grid(s, y, nb_points=100, bootstrap_ratio=1., nb_points_for_weights=2000, weights=None):
     s_grid_min = np.min(s)
     s_grid_max = np.max(s)
     s_grid = np.linspace(s_grid_min, s_grid_max, nb_points)
-    s_bins = np.linspace(s_grid_min, s_grid_max, 2000)
+    s_bins = np.linspace(s_grid_min, s_grid_max, nb_points_for_weights)
 
     def iteratively_count(nb_by_s_grid):
         counter_s0 = np.zeros((nb_points, nb_points))
@@ -77,7 +81,6 @@ def phi_on_grid(s, y, nb_points=100, bootstrap_ratio=1., weights=None):
     matrix_n_samples_s1, matrix_n_samples_s0 = iteratively_count(nb_samples)
     matrix_p_s1 = matrix_n_samples_s1.copy()
     matrix_p_s0 = matrix_n_samples_s0.copy()
-    zero_thr = 1e-12
     matrix_p_s1[matrix_p_s1 > zero_thr] = matrix_n_pos_y_s1[matrix_p_s1 > zero_thr] / matrix_n_samples_s1[matrix_p_s1 > zero_thr]
     matrix_p_s0[matrix_p_s0 > zero_thr] = matrix_n_pos_y_s0[matrix_p_s0 > zero_thr] / matrix_n_samples_s0[matrix_p_s0 > zero_thr]
 
