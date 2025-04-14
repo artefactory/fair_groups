@@ -2,14 +2,14 @@ import numpy as np
 import scipy
 
 
-def compute_phi_sp_ci(Y, S, alpha=.95):
+def compute_phi_sp_ci(s, y, alpha=.95):
     """
     Calculate confidence interval of the estimator of [P(Y = 1 | S = 1) - P(Y = 1)] using the delta method.
     For more information please refer to the paper: Besse, Philippe, et al. 
     "Confidence intervals for testing disparate impact in fair learning." 
     arXiv preprint arXiv:1807.06362 (2018).
     """
-    Z = np.array([np.multiply(S, Y), S, Y, 1-Y])
+    Z = np.array([np.multiply(s, y), s, y, 1-y])
     n = Z.shape[1]
     
     # Expected value and covariance matrix 
