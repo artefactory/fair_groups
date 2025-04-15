@@ -33,7 +33,7 @@ def compute_phi_sp_ci(s, y, alpha=.95):
     return [center, center - radius, center + radius]
     
 
-def phi_on_grid(s, y, nb_points=100, bootstrap_ratio=1., nb_points_for_weights=2000, weights=None):
+def compute_phi_on_grid(s, y, nb_points=100, bootstrap_ratio=1., nb_points_for_weights=2000, weights=None):
     s_grid_min = np.min(s)
     s_grid_max = np.max(s)
     s_grid = np.linspace(s_grid_min, s_grid_max, nb_points)
