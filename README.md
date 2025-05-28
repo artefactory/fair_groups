@@ -1,4 +1,4 @@
-# 📄 Fairness-aware Segmentation of Continuous Sensitive Attributes
+# 📄 Fairness-aware Grouping for Continuous Sensitive Variables
 
 This repository contains the code and experiments accompanying our paper:
 
