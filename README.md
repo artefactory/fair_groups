@@ -15,7 +15,7 @@ This repository is currently being cleaned and finalized. The full code, documen
 
 ## 🔍 Overview
 
-This project implements the core methods and experiments described in our paper. The main goal is to analyze fairness in computer vision models with respect to skin tone variations using a novel data-driven approach.
+This project implements the core methods and experiments described in our paper. The main goal is to analyze fairness in computer vision models with respect to skin tone variations using a novel data-driven approach and then extend it to bias mitigation.
 
 ---
 
