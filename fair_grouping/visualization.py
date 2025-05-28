@@ -10,6 +10,7 @@ def plot_partition(partition, phi_by_group, sensitive_var_name='ITA'):
 
     plt.xlabel(f'${sensitive_var_name}$')
     plt.ylabel(r'$\Phi(S^{\mathcal{P}})$')
+    plt.show()
 
     
 def plot_partition_with_ci(partition, partition_ci, sensitive_var_name='ITA'):
@@ -23,4 +24,5 @@ def plot_partition_with_ci(partition, partition_ci, sensitive_var_name='ITA'):
 
     plt.xlabel(f'${sensitive_var_name}$')
     plt.ylabel(r'$\Phi(S^{\mathcal{P}})$')
+    plt.show()
     
