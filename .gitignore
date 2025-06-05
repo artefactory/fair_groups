@@ -1,0 +1,7 @@
+fairness_metrics/
+fair_grouping/partition_estimation_old.py
+notebooks/example_di_curves_celeba.ipynb
+notebooks/.ipynb_checkpoints/
+!notebooks/example_partitions_celeba.ipynb
+!notebooks/example_partitions_synthetic_data.ipynb
+**/__pycache__/
