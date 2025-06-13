@@ -26,6 +26,7 @@ def plot_partition_with_ci(partition, partition_ci, sensitive_var_name='ITA'):
     plt.ylabel(fr'$\Phi({sensitive_var_name}^{{\mathcal{{P}}}})$')
     plt.show()
     
+    
 def plot_conditional_proba(s_bins, y_s_proba, sensitive_var_name='ITA'):
     plt.plot(s_bins[:-1], y_s_proba)
     plt.xlabel(f'${sensitive_var_name}$')
