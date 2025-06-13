@@ -9,7 +9,7 @@ def plot_partition(partition, phi_by_group, sensitive_var_name='ITA'):
         plt.hlines(y=phi_by_group[i], xmin=partition[i], xmax=partition[i+1], color='red')
 
     plt.xlabel(f'${sensitive_var_name}$')
-    plt.ylabel(r'$\Phi(S^{\mathcal{P}})$')
+    plt.ylabel(fr'$\Phi({sensitive_var_name}^{{\mathcal{{P}}}})$')
     plt.show()
 
     
@@ -23,6 +23,12 @@ def plot_partition_with_ci(partition, partition_ci, sensitive_var_name='ITA'):
                          y2=partition_ci[i, 1], color='orange', interpolate=True, alpha=.5)
 
     plt.xlabel(f'${sensitive_var_name}$')
-    plt.ylabel(r'$\Phi(S^{\mathcal{P}})$')
+    plt.ylabel(fr'$\Phi({sensitive_var_name}^{{\mathcal{{P}}}})$')
+    plt.show()
+    
+def plot_conditional_proba(s_bins, y_s_proba, sensitive_var_name='ITA'):
+    plt.plot(s_bins[:-1], y_s_proba)
+    plt.xlabel(f'${sensitive_var_name}$')
+    plt.ylabel(fr'$P(Y = 1 | {sensitive_var_name})$')
     plt.show()
     

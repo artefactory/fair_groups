@@ -85,3 +85,15 @@ def compute_phi_on_grid(s, y, nb_points=100, bootstrap_ratio=1., nb_points_for_w
     matrix_p_s0[matrix_p_s0 > zero_thr] = matrix_n_pos_y_s0[matrix_p_s0 > zero_thr] / matrix_n_samples_s0[matrix_p_s0 > zero_thr]
 
     return s_grid, matrix_p_s0, matrix_p_s1
+
+
+def get_conditional_positive_y_proba(s, y, nb_bins=100):
+    """
+    Calculates s_bins grid and P(Y=1|S)
+    """
+    s_min = np.min(s)
+    s_max = np.max(s)
+    s_bins = np.linspace(s_min, s_max, nb_bins)
+    y_pred_proba = [np.mean(y[(s >= s_bins[i]) & (s <= s_bins[i+1])]) for i in range(len(s_bins)-1)]
+
+    return s_bins, np.array(y_pred_proba)
