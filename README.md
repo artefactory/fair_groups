@@ -77,7 +77,7 @@ Thank you for reviewing our work. If you encounter any issues or need clarificat
 
 ---
 
-## Developer Guide
+## 🪛 Developer Guide
 
 ### Available Make Commands
 
