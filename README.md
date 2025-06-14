@@ -7,15 +7,17 @@ This repository contains the code and experiments accompanying our paper:
 
 ---
 
-## 🚧 Status: Work in Progress
+## 🔍 Overview
 
-This repository is currently being cleaned and finalized. The full code, documentation, and instructions will be made available shortly. In the meantime, feel free to reach out if you have questions.
+The main goal is to analyze fairness in computer vision models with respect to skin tone variations using a novel data-driven approach and then extend it to bias mitigation. 
+
+See notebooks folder for examples of the usage.
 
 ---
 
-## 🔍 Overview
+## 🚧 Status: Work in Progress
 
-This project implements the core methods and experiments described in our paper. The main goal is to analyze fairness in computer vision models with respect to skin tone variations using a novel data-driven approach and then extend it to bias mitigation.
+This repository is currently being cleaned and finalized. The full code, documentation, and instructions will be made available shortly. In the meantime, feel free to reach out if you have questions.
 
 ---
 
