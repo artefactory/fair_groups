@@ -20,7 +20,7 @@ See notebooks folder for full examples of the usage.
 ### Using pip
 
 ```bash
-pip install fair-partition
+pip install -i https://test.pypi.org/simple/ fair-partition==0.1.0
 ```
 
 ### From source
