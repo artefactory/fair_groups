@@ -31,17 +31,12 @@ git clone https://github.com/yourusername/fair-partition.git
 cd fair-partition
 ```
 
-2. Install development dependencies:
-```bash
-make install-dev
-```
-
-3. Build and install the package:
+2. Build and install the package:
 ```bash
 make build
 ```
 
-4. Import newly-built local version of the package:
+3. Import newly-built local version of the package:
 ```bash
 pip install dist/fair_partition-$(VERSION)-py3-none-any.whl
 ```
@@ -94,6 +89,11 @@ Thank you for reviewing our work. If you encounter any issues or need clarificat
 - `make lint` - Run linting
 - `make format` - Format code
 - `make build-and-install` - Build and install in one command
+
+You will probably want to install development dependencies:
+```bash
+make install-dev
+```
 
 ### Building a New Version
 
