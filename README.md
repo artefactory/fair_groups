@@ -20,7 +20,7 @@ See notebooks folder for full examples of the usage.
 ### Using pip
 
 ```bash
-pip install -i https://test.pypi.org/simple/ fair-partition==0.1.0
+pip install -i https://test.pypi.org/simple/ fair-partition
 ```
 
 ### From source
@@ -38,7 +38,12 @@ make install-dev
 
 3. Build and install the package:
 ```bash
-make build-and-install
+make build
+```
+
+4. Import newly-built local version of the package:
+```bash
+pip install dist/fair_partition-$(VERSION)-py3-none-any.whl
 ```
 
 ### Example

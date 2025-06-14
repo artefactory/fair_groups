@@ -38,7 +38,7 @@ build: clean
 
 # Install the package from wheel
 install-wheel:
-	. $(VENV_ACTIVATE) && $(UV) pip install $(shell ls -t $(DIST_DIR)/$(PACKAGE_NAME)-$(VERSION)*.whl | head -n1)
+	. $(VENV_ACTIVATE) && $(UV) pip install -i https://test.pypi.org/simple/ fair-partition
 
 # Run tests
 test:
@@ -54,8 +54,12 @@ format:
 	. $(VENV_ACTIVATE) && black .
 	. $(VENV_ACTIVATE) && isort .
 
+publish:
+	. $(VENV_ACTIVATE) && $(UV) pip install build twine
+	. $(VENV_ACTIVATE) && $(UV) run twine upload --repository testpypi dist/*
+
 # Build and install in one command
-build-and-install: build install-wheel
+build-and-publish: build publish install-wheel
 
 # Help command
 help:
@@ -68,4 +72,3 @@ help:
 	@echo "  make test             - Run tests"
 	@echo "  make lint             - Run linting"
 	@echo "  make format           - Format code"
-	@echo "  make build-and-install - Build and install in one command" 
