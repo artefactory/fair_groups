@@ -47,10 +47,33 @@ def _compute_variance(weights, phi_by_group):
     return variance
 
 
-class FairGroups:
-    def __init__(self, nb_groups, nb_points=100):
-        self.nb_groups = nb_groups
-        self.nb_points = nb_points
+class FairPartitionBase(object):
+    def __init__(self, n_groups, grid_size=100):
+        self.n_groups = n_groups
+        self.grid_size = grid_size
+        self.variance = None
+        self.partition = None
+        self.weights = None
+        self.phi_by_group = None
+
+    def predict(self, s):
+        """Compute group(s) for a given sensitive attribute value(s)"""
+        return groups
+
+    def print(self):
+        """Blabla describe my object"""
+        pass
+
+    @abstractmethod
+    def recompute_fairness_statistics(self, s, y):
+        pass
+
+    @abstractmethod
+    def fit(self, s, y):
+        pass
+
+ 
+class FairGroups(FairPartitionBase):
 
     def fit(self, s, y):
         variance = -np.inf
@@ -110,7 +133,7 @@ class FairGroups:
 
         return self
 
-    def predict(self, s, y):
+    def recompute_fairness_statistics(self, s, y):
         phi_by_group = _compute_phi_by_group(self.partition, s, y)
         phi_by_group_ci = _compute_phi_by_group_ci(self.partition, s, y)
         weights = _compute_weights(self.partition, s)
@@ -119,10 +142,7 @@ class FairGroups:
         return phi_by_group, phi_by_group_ci, variance
 
 
-class FairKMeans:
-    def __init__(self, nb_groups, nb_points=100):
-        self.nb_groups = nb_groups
-        self.nb_points = nb_points
+class FairKMeans(FairPartitionBase):
 
     def fit(self, s, y):
         weights = np.zeros(self.nb_groups)
@@ -158,7 +178,7 @@ class FairKMeans:
 
         return self
 
-    def predict(self, s, y):
+    def recompute_fairness_statistics(self, s, y):
         phi_by_group = _compute_phi_by_group(self.partition, s, y)
         phi_by_group_ci = _compute_phi_by_group_ci(self.partition, s, y)
         weights = _compute_weights(self.partition, s)
