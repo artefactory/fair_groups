@@ -8,9 +8,24 @@ zero_thr = 1e-12
 def compute_phi_sp_ci(s, y, alpha=0.95):
     """
     Calculate confidence interval of the estimator of [P(Y = 1 | S = 1) - P(Y = 1)] using the delta method.
-    For more information please refer to the paper: Besse, Philippe, et al.
-    "Confidence intervals for testing disparate impact in fair learning."
+
+    For more information, see:
+    Besse, Philippe, et al. "Confidence intervals for testing disparate impact in fair learning."
     arXiv preprint arXiv:1807.06362 (2018).
+
+    Parameters
+    ----------
+    s : array-like
+        Binary sensitive attribute (0/1 or boolean mask).
+    y : array-like
+        Binary outcome variable.
+    alpha : float, default=0.95
+        Confidence level.
+
+    Returns
+    -------
+    ci : list of float
+        [center, lower_bound, upper_bound] of the confidence interval.
     """
     Z = np.array([np.multiply(s, y), s, y, 1 - y])
     n = Z.shape[1]
@@ -38,18 +53,43 @@ def compute_phi_sp_ci(s, y, alpha=0.95):
 
 
 def compute_phi_on_grid(
-    s, y, nb_points=100, bootstrap_ratio=1.0, nb_points_for_weights=2000, weights=None
+    s, y, grid_size=100, bootstrap_ratio=1.0, nb_points_for_weights=2000, weights=None
 ):
+    """
+    Compute the conditional probability P(Y=1|S) estimate on a grid of sensitive attribute values.
+
+    Parameters
+    ----------
+    s : array-like
+        Sensitive attribute values.
+    y : array-like
+        Binary outcome variable.
+    grid_size : int, default=100
+        Number of grid points for partitioning.
+    bootstrap_ratio : float, default=1.0
+        Ratio of samples to use for bootstrapping.
+    nb_points_for_weights : int, default=2000
+        Number of bins for rebalancing weights.
+    weights : array-like, optional
+        Optional weights for rebalancing.
+
+    Returns
+    -------
+    s_grid : ndarray
+        Grid of sensitive attribute values.
+    matrix_p_s0 : ndarray
+        Conditional probabilities for S=0.
+    matrix_p_s1 : ndarray
+        Conditional probabilities for S=1.
+    """
     s_grid_min = np.min(s)
     s_grid_max = np.max(s)
-    s_grid = np.linspace(s_grid_min, s_grid_max, nb_points)
+    s_grid = np.linspace(s_grid_min, s_grid_max, grid_size)
     s_bins = np.linspace(s_grid_min, s_grid_max, nb_points_for_weights)
 
     def iteratively_count(nb_by_s_grid):
-        counter_s0 = np.zeros((nb_points, nb_points))
-        counter_s1 = np.zeros((nb_points, nb_points))
-
-        # Initialize first row
+        counter_s0 = np.zeros((grid_size, grid_size))
+        counter_s1 = np.zeros((grid_size, grid_size))
         counter_s0[0, 1] = np.sum(nb_by_s_grid[1:])
         counter_s1[0, 1] = nb_by_s_grid[0]
         for j in range(2, len(s_grid)):
@@ -102,15 +142,30 @@ def compute_phi_on_grid(
     return s_grid, matrix_p_s0, matrix_p_s1
 
 
-def get_conditional_positive_y_proba(s, y, nb_bins=100):
+def get_conditional_positive_y_proba(s, y, n_bins=100):
     """
-    Calculates s_bins grid and P(Y=1|S)
+    Calculates the grid of s_bins and the conditional probability P(Y=1|S) for each bin.
+
+    Parameters
+    ----------
+    s : array-like
+        Sensitive attribute values.
+    y : array-like
+        Binary outcome variable.
+    n_bins : int, default=100
+        Number of bins for s.
+
+    Returns
+    -------
+    s_bins : ndarray
+        Grid of sensitive attribute values.
+    y_pred_proba : ndarray
+        Probability of Y=1 for each bin.
     """
     s_min = np.min(s)
     s_max = np.max(s)
-    s_bins = np.linspace(s_min, s_max, nb_bins)
+    s_bins = np.linspace(s_min, s_max, n_bins)
     y_pred_proba = [
         np.mean(y[(s >= s_bins[i]) & (s <= s_bins[i + 1])]) for i in range(len(s_bins) - 1)
     ]
-
     return s_bins, np.array(y_pred_proba)
