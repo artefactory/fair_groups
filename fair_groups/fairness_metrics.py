@@ -53,7 +53,7 @@ def compute_phi_sp_ci(s, y, alpha=0.95):
 
 
 def compute_phi_on_grid(
-    s, y, grid_size=100, bootstrap_ratio=1.0, nb_points_for_weights=2000, weights=None
+    s, y, grid_size=100, bootstrap_ratio=1.0, n_points_for_weights=2000, weights=None
 ):
     """
     Compute the conditional probability P(Y=1|S) estimate on a grid of sensitive attribute values.
@@ -68,7 +68,7 @@ def compute_phi_on_grid(
         Number of grid points for partitioning.
     bootstrap_ratio : float, default=1.0
         Ratio of samples to use for bootstrapping.
-    nb_points_for_weights : int, default=2000
+    n_points_for_weights : int, default=2000
         Number of bins for rebalancing weights.
     weights : array-like, optional
         Optional weights for rebalancing.
@@ -85,21 +85,21 @@ def compute_phi_on_grid(
     s_grid_min = np.min(s)
     s_grid_max = np.max(s)
     s_grid = np.linspace(s_grid_min, s_grid_max, grid_size)
-    s_bins = np.linspace(s_grid_min, s_grid_max, nb_points_for_weights)
+    s_bins = np.linspace(s_grid_min, s_grid_max, n_points_for_weights)
 
-    def iteratively_count(nb_by_s_grid):
+    def iteratively_count(n_by_s_grid):
         counter_s0 = np.zeros((grid_size, grid_size))
         counter_s1 = np.zeros((grid_size, grid_size))
-        counter_s0[0, 1] = np.sum(nb_by_s_grid[1:])
-        counter_s1[0, 1] = nb_by_s_grid[0]
+        counter_s0[0, 1] = np.sum(n_by_s_grid[1:])
+        counter_s1[0, 1] = n_by_s_grid[0]
         for j in range(2, len(s_grid)):
-            counter_s0[0, j] = counter_s0[0, j - 1] - nb_by_s_grid[j - 1]
-            counter_s1[0, j] = counter_s1[0, j - 1] + nb_by_s_grid[j - 1]
+            counter_s0[0, j] = counter_s0[0, j - 1] - n_by_s_grid[j - 1]
+            counter_s1[0, j] = counter_s1[0, j - 1] + n_by_s_grid[j - 1]
 
         for i in range(1, len(s_grid)):
             for j in range(i + 1, len(s_grid)):
-                counter_s0[i, j] = counter_s0[i - 1, j] + nb_by_s_grid[i - 1]
-                counter_s1[i, j] = counter_s1[i - 1, j] - nb_by_s_grid[i - 1]
+                counter_s0[i, j] = counter_s0[i - 1, j] + n_by_s_grid[i - 1]
+                counter_s1[i, j] = counter_s1[i - 1, j] - n_by_s_grid[i - 1]
 
         return counter_s1, counter_s0
 
@@ -109,27 +109,27 @@ def compute_phi_on_grid(
 
     rebalance_weights = np.zeros(len(y_bootstrapped))
     if weights:
-        nb_s_by_bins = [
+        n_s_by_bins = [
             np.sum((weights > s_bins[i - 1]) & (weights <= s_bins[i]))
             for i in range(1, len(s_bins))
         ]
         for i in range(1, len(s_bins)):
             rebalance_weights[(s_bootstrapped > s_bins[i - 1]) * (s_bootstrapped <= s_bins[i])] = (
-                nb_s_by_bins[i - 1]
+                n_s_by_bins[i - 1]
             )
     else:
         rebalance_weights = np.ones(len(y_bootstrapped))
     rebalance_weights /= rebalance_weights.sum()
 
-    nb_samples = []
-    nb_pos_y = []
+    n_samples = []
+    n_pos_y = []
     for i in range(1, len(s_grid)):
         mask = (s_bootstrapped > s_grid[i - 1]) & (s_bootstrapped <= s_grid[i])
-        nb_samples.append(np.sum(rebalance_weights[mask]))
-        nb_pos_y.append(np.sum(rebalance_weights[mask] * y_bootstrapped[mask]))
+        n_samples.append(np.sum(rebalance_weights[mask]))
+        n_pos_y.append(np.sum(rebalance_weights[mask] * y_bootstrapped[mask]))
 
-    matrix_n_pos_y_s1, matrix_n_pos_y_s0 = iteratively_count(nb_pos_y)
-    matrix_n_samples_s1, matrix_n_samples_s0 = iteratively_count(nb_samples)
+    matrix_n_pos_y_s1, matrix_n_pos_y_s0 = iteratively_count(n_pos_y)
+    matrix_n_samples_s1, matrix_n_samples_s0 = iteratively_count(n_samples)
     matrix_p_s1 = matrix_n_samples_s1.copy()
     matrix_p_s0 = matrix_n_samples_s0.copy()
     matrix_p_s1[matrix_p_s1 > zero_thr] = (

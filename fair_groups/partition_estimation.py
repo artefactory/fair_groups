@@ -1,4 +1,5 @@
 import itertools
+from abc import ABC, abstractmethod
 
 import numpy as np
 from sklearn.cluster import KMeans
@@ -105,7 +106,55 @@ def _compute_std(weights, phi_by_group):
     return std
 
 
-class FairGroups:
+class FairPartitionBase(ABC):
+    def __init__(self, n_groups, grid_size=100):
+        self.n_groups = n_groups
+        self.grid_size = grid_size
+        self.variance = None
+        self.partition = None
+        self.weights = None
+        self.phi_by_group = None
+
+    def predict(self, s):
+        """
+        Compute group(s) for a given sensitive attribute value(s).
+        
+        Parameters
+        ----------
+        s : array-like
+            Sensitive attribute values.
+            
+        Returns
+        -------
+        groups : array-like
+            Group assignments for each sensitive attribute value.
+        """
+        if self.partition is None:
+            raise ValueError("Model must be fitted before making predictions.")
+        
+        s = np.asarray(s)
+        groups = np.zeros_like(s, dtype=int)
+        
+        for i in range(self.n_groups):
+            mask = (s >= self.partition[i]) & (s <= self.partition[i + 1])
+            groups[mask] = i
+            
+        return groups
+
+    @abstractmethod
+    def print(self):
+        pass
+
+    @abstractmethod
+    def recompute_fairness_statistics(self, s, y):
+        pass
+
+    @abstractmethod
+    def fit(self, s, y):
+        pass
+
+
+class FairGroups(FairPartitionBase):
     """
     Partition continuous sensitive attribute into groups to maximize the variance of fairness criterion phi on these groups.
 
@@ -195,6 +244,37 @@ class FairGroups:
 
         return self
 
+    def predict(self, s):
+        """
+        Compute group(s) for a given sensitive attribute value(s).
+        
+        Parameters
+        ----------
+        s : array-like
+            Sensitive attribute values.
+            
+        Returns
+        -------
+        groups : array-like
+            Group assignments for each sensitive attribute value.
+        """
+        return super().predict(s)
+
+    def print(self):
+        """Print information about the fitted FairGroups partition."""
+        if self.partition is None:
+            print("FairGroups model is not fitted yet.")
+            return
+            
+        print(f"FairGroups with {self.n_groups} groups")
+        print(f"Partition boundaries: {self.partition}")
+        if self.weights is not None:
+            print(f"Group weights: {self.weights}")
+        if self.phi_by_group is not None:
+            print(f"Fairness metric (phi) by group: {self.phi_by_group}")
+        if hasattr(self, 'std') and self.std is not None:
+            print(f"Weighted standard deviation: {self.std:.6f}")
+
     def recompute_fairness_statistics(self, s, y):
         """
         Recompute the fairness statistics for new data using the learned partition.
@@ -222,7 +302,7 @@ class FairGroups:
         return phi_by_group, phi_by_group_ci, std
 
 
-class FairKMeans:
+class FairKMeans(FairPartitionBase):
     """
     Partition continuous sensitive attribute into groups using a k-means-like approach to maximize the variance of group fairness criterion phi.
 
@@ -296,6 +376,37 @@ class FairKMeans:
         self.phi_by_group_ci = phi_by_group_ci
 
         return self
+    
+    def predict(self, s):
+        """
+        Compute group(s) for a given sensitive attribute value(s).
+        
+        Parameters
+        ----------
+        s : array-like
+            Sensitive attribute values.
+            
+        Returns
+        -------
+        groups : array-like
+            Group assignments for each sensitive attribute value.
+        """
+        return super().predict(s)
+
+    def print(self):
+        """Print information about the fitted FairKMeans partition."""
+        if self.partition is None:
+            print("FairKMeans model is not fitted yet.")
+            return
+            
+        print(f"FairKMeans with {self.n_groups} groups")
+        print(f"Partition boundaries: {self.partition}")
+        if self.weights is not None:
+            print(f"Group weights: {self.weights}")
+        if self.phi_by_group is not None:
+            print(f"Fairness metric (phi) by group: {self.phi_by_group}")
+        if hasattr(self, 'std') and self.std is not None:
+            print(f"Weighted standard deviation: {self.std:.6f}")
 
     def recompute_fairness_statistics(self, s, y):
         """
