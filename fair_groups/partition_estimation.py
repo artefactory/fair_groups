@@ -107,6 +107,43 @@ def _compute_std(weights, phi_by_group):
 
 
 class FairPartitionBase(ABC):
+    """
+    Abstract base class for partitioning continuous sensitive attributes into groups.
+    
+    This class provides the foundation for different approaches to partition continuous
+    sensitive attributes into discrete groups for fairness analysis. The goal is to
+    maximize the variance of fairness criterion phi across the resulting groups.
+    
+    Parameters
+    ----------
+    n_groups : int
+        Number of groups to partition the sensitive attribute into.
+    grid_size : int, default=100
+        Number of grid points used for discretization and optimization.
+        
+    Attributes
+    ----------
+    n_groups : int
+        Number of groups for partitioning.
+    grid_size : int
+        Grid size for discretization.
+    variance : float, optional
+        Variance of fairness metric across groups (set after fitting).
+    partition : list or ndarray, optional
+        Partition boundaries defining the groups (set after fitting).
+    weights : ndarray, optional
+        Number of samples in each group (set after fitting).
+    phi_by_group : ndarray, optional
+        Fairness metric (phi) values for each group (set after fitting).
+        
+    Notes
+    -----
+    This is an abstract base class that must be subclassed. Subclasses must implement
+    the abstract methods `fit`, `recompute_fairness_statistics`, and `print`.
+    
+    The fairness metric phi represents the difference between the probability of
+    positive outcome for a group and the overall probability of positive outcome.
+    """
     def __init__(self, n_groups, grid_size=100):
         self.n_groups = n_groups
         self.grid_size = grid_size
@@ -156,27 +193,38 @@ class FairPartitionBase(ABC):
 
 class FairGroups(FairPartitionBase):
     """
-    Partition continuous sensitive attribute into groups to maximize the variance of fairness criterion phi on these groups.
-
+    Partition continuous sensitive attribute into groups using exhaustive search.
+    
+    This implementation uses an exhaustive search approach to find the optimal partition
+    that maximizes the variance of fairness criterion phi across groups. It evaluates
+    all possible combinations of partition boundaries and selects the one that yields
+    the highest weighted standard deviation of phi values.
+    
+    The algorithm works by:
+    1. Creating a grid of possible partition points
+    2. Evaluating all possible combinations of n_groups-1 internal partition points
+    3. Computing phi values for each resulting partition
+    4. Selecting the partition with maximum weighted standard deviation
+    
     Parameters
     ----------
     n_groups : int
-        Number of groups to partition into.
+        Number of groups to partition the sensitive attribute into.
     grid_size : int, default=100
-        Number of grid points for searching partitions.
-
+        Number of grid points for discretization and exhaustive search.
+        
     Attributes
     ----------
-    partition : ndarray of shape (n_groups,)
-        Partition boundaries after fitting.
+    partition : list
+        Partition boundaries defining the groups after fitting.
     phi_by_group : ndarray of shape (n_groups,)
         Fairness metric (phi) estimate for each group after fitting.
     phi_by_group_ci : ndarray of shape (n_groups, 3)
         Confidence intervals for each group after fitting (center, lower bound, upper bound).
     std : float
-        Weighted standard deviation after fitting.
+        Weighted standard deviation of phi values across groups after fitting.
     weights : ndarray of shape (n_groups,)
-        Counts for each group after fitting.
+        Number of samples in each group after fitting.
     """
     def __init__(self, n_groups, grid_size=100):
         self.n_groups = n_groups
@@ -304,27 +352,44 @@ class FairGroups(FairPartitionBase):
 
 class FairKMeans(FairPartitionBase):
     """
-    Partition continuous sensitive attribute into groups using a k-means-like approach to maximize the variance of group fairness criterion phi.
-
+    Partition continuous sensitive attribute into groups using k-means clustering.
+    
+    This implementation uses a k-means-like approach to partition the sensitive attribute
+    into groups that maximize the variance of fairness criterion phi. Instead of
+    clustering the raw sensitive attribute values, it clusters the phi values computed
+    on adjacent grid intervals, then maps the cluster assignments back to partition
+    boundaries.
+    
+    The algorithm works by:
+    1. Creating a grid and computing phi values for adjacent intervals
+    2. Using k-means to cluster these phi values into n_groups clusters
+    3. Mapping cluster assignments back to grid points to create partition boundaries
+    4. Computing final statistics on the resulting partition
+    
     Parameters
     ----------
     n_groups : int
-        Number of groups to partition into.
+        Number of groups to partition the sensitive attribute into.
     grid_size : int, default=100
-        Number of grid points for searching partitions.
-
+        Number of grid points for discretization and phi computation.
+        
     Attributes
     ----------
-    partition : ndarray of shape (n_groups,)
-        Partition boundaries after fitting.
+    partition : list
+        Partition boundaries defining the groups after fitting.
     phi_by_group : ndarray of shape (n_groups,)
         Fairness metric (phi) estimate for each group after fitting.
     phi_by_group_ci : ndarray of shape (n_groups, 3)
         Confidence intervals for each group after fitting (center, lower bound, upper bound).
     std : float
-        Weighted standard deviation after fitting.
+        Weighted standard deviation of phi values across groups after fitting.
     weights : ndarray of shape (n_groups,)
-        Counts for each group after fitting.
+        Number of samples in each group after fitting.
+        
+    Notes
+    -----
+    This method only works in the case of monotonic fairness with respect to the sensitive attribute. 
+    See the paper for more details.
     """
     def __init__(self, n_groups, grid_size=100):
         self.n_groups = n_groups
