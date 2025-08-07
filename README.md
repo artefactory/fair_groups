@@ -3,7 +3,7 @@
 This repository contains the code and experiments accompanying our paper:
 
 **"Fairness-Aware Grouping for Continuous Sensitive Variables: Application for Debiasing Face Analysis with respect to Skin Tone"**  
-*Submitted to ECAI 2025*
+*Accepted to ECAI 2025*
 
 ---
 
