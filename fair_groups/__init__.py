@@ -1,5 +1,5 @@
 """
-Fair Partition - A Python package for fair partitioning algorithms.
+Fair Groups - A Python package for fair partitioning algorithms.
 """
 
 # Import and expose the main classes
