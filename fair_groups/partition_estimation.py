@@ -8,39 +8,32 @@ from tqdm import tqdm
 from .fairness_metrics import compute_phi_on_grid, compute_phi_sp_ci
 
 
-def _compute_weights(partition, s):
+def _compute_weights(groups):
     """
     Compute the number of elements in each group defined by the partition.
 
     Parameters
     ----------
-    partition : ndarray of shape (n_groups,)
-        Partition boundaries.
-    s : array-like
-        Sensitive attribute values.
+    groups : ndarray of shape (n_obs,)
+        Group assignments for each observation.
 
     Returns
     -------
     weights : ndarray of shape (n_groups,)
         Array of counts for each group.
     """
-    s_sorted = np.sort(s)
-    left_idxs = np.searchsorted(s_sorted, partition[:-1], side="left")
-    right_idxs = np.searchsorted(s_sorted, partition[1:], side="right")
-    weights = right_idxs - left_idxs
+    weights = np.array([np.sum(groups == i) for i in range(np.max(groups) + 1)])
     return weights
 
 
-def _compute_phi_by_group(partition, s, y):
+def _compute_phi_by_group(groups, y):
     """
     Compute the fairness metric (phi) estimate for each group defined by the partition.
 
     Parameters
     ----------
-    partition : ndarray of shape (n_groups,)
-        Partition boundaries.
-    s : array-like
-        Sensitive attribute values.
+    groups : ndarray of shape (n_obs,)
+        Group assignments for each observation.
     y : array-like
         Binary outcome variable.
 
@@ -49,24 +42,23 @@ def _compute_phi_by_group(partition, s, y):
     phi_by_group : ndarray of shape (n_groups,)
         Fairness metric (phi) estimate for each group.
     """
-    phi_by_group = np.full(len(partition) - 1, np.nan)
-    for i in range(len(partition) - 1):
-        group = (s >= partition[i]) & (s <= partition[i + 1])
+    n_groups = np.max(groups) + 1
+    phi_by_group = np.full(n_groups, np.nan)
+    for i in range(n_groups):
+        group = (groups == i)
         if np.any(group):
             phi_by_group[i] = y[group].mean()
     return phi_by_group
 
 
-def _compute_phi_by_group_ci(partition, s, y):
+def _compute_phi_by_group_ci(groups, y):
     """
     Compute confidence intervals for the fairness metric (phi) estimate in each group defined by the partition.
 
     Parameters
     ----------
-    partition : ndarray of shape (n_groups,)
-        Partition boundaries.
-    s : array-like
-        Sensitive attribute values.
+    groups : ndarray of shape (n_obs,)
+        Group assignments for each observation.
     y : array-like
         Binary outcome variable.
 
@@ -76,8 +68,8 @@ def _compute_phi_by_group_ci(partition, s, y):
         Confidence intervals for each group (center, lower bound, upper bound).
     """
     phi_by_group_ci = [
-        compute_phi_sp_ci((s >= partition[i]) & (s <= partition[i + 1]), y)
-        for i in range(len(partition) - 1)
+        compute_phi_sp_ci(groups == i, y)
+        for i in range(np.max(groups) + 1)
     ]
     return np.array(phi_by_group_ci)
 
@@ -178,13 +170,47 @@ class FairPartitionBase(ABC):
             
         return groups
 
-    @abstractmethod
-    def print(self):
-        pass
-
-    @abstractmethod
     def recompute_fairness_statistics(self, s, y):
-        pass
+        """
+        Compute fairness metric (phi) estimate, confidence intervals, and standard deviation for new data using the learned partition.
+
+        Parameters
+        ----------
+        s : array-like
+            Sensitive attribute values.
+        y : array-like
+            Binary outcome variable.
+
+        Returns
+        -------
+        phi_by_group : ndarray
+            Fairness metric (phi) estimate for each group.
+        phi_by_group_ci : ndarray
+            Confidence intervals for each group (center, lower bound, upper bound).
+        std : float
+            Weighted standard deviation.
+        """
+        groups = self.predict(s)
+        phi_by_group = _compute_phi_by_group(groups, y)
+        phi_by_group_ci = _compute_phi_by_group_ci(groups, y)
+        weights = _compute_weights(groups)
+        std = _compute_std(weights, phi_by_group)
+        return phi_by_group, phi_by_group_ci, std
+
+    def print(self):
+        """Print information about the fitted partition."""
+        if self.partition is None:
+            print(f"{self.__class__.__name__} model is not fitted yet.")
+            return
+            
+        print(f"{self.__class__.__name__} with {self.n_groups} groups")
+        print(f"Partition boundaries: {self.partition}")
+        if self.weights is not None:
+            print(f"Group weights: {self.weights}")
+        if self.phi_by_group is not None:
+            print(f"Fairness metric (phi) by group: {self.phi_by_group}")
+        if hasattr(self, 'std') and self.std is not None:
+            print(f"Weighted standard deviation: {self.std:.6f}")
 
     @abstractmethod
     def fit(self, s, y):
@@ -287,67 +313,11 @@ class FairGroups(FairPartitionBase):
         self.partition = partition
         self.weights = weights
         self.phi_by_group = phi_by_group
-        phi_by_group_ci = _compute_phi_by_group_ci(partition, s, y)
+        groups = self.predict(s)
+        phi_by_group_ci = _compute_phi_by_group_ci(groups, y)
         self.phi_by_group_ci = phi_by_group_ci
 
         return self
-
-    def predict(self, s):
-        """
-        Compute group(s) for a given sensitive attribute value(s).
-        
-        Parameters
-        ----------
-        s : array-like
-            Sensitive attribute values.
-            
-        Returns
-        -------
-        groups : array-like
-            Group assignments for each sensitive attribute value.
-        """
-        return super().predict(s)
-
-    def print(self):
-        """Print information about the fitted FairGroups partition."""
-        if self.partition is None:
-            print("FairGroups model is not fitted yet.")
-            return
-            
-        print(f"FairGroups with {self.n_groups} groups")
-        print(f"Partition boundaries: {self.partition}")
-        if self.weights is not None:
-            print(f"Group weights: {self.weights}")
-        if self.phi_by_group is not None:
-            print(f"Fairness metric (phi) by group: {self.phi_by_group}")
-        if hasattr(self, 'std') and self.std is not None:
-            print(f"Weighted standard deviation: {self.std:.6f}")
-
-    def recompute_fairness_statistics(self, s, y):
-        """
-        Recompute the fairness statistics for new data using the learned partition.
-
-        Parameters
-        ----------
-        s : array-like
-            Sensitive attribute values.
-        y : array-like
-            Binary outcome variable.
-
-        Returns
-        -------
-        phi_by_group : ndarray of shape (n_groups,)
-            Fairness metric (phi) estimate for each group.
-        phi_by_group_ci : ndarray of shape (n_groups, 3)
-            Confidence intervals for each group (center, lower bound, upper bound).
-        std : float
-            Weighted standard deviation.
-        """
-        phi_by_group = _compute_phi_by_group(self.partition, s, y)
-        phi_by_group_ci = _compute_phi_by_group_ci(self.partition, s, y)
-        weights = _compute_weights(self.partition, s)
-        std = _compute_std(weights, phi_by_group)
-        return phi_by_group, phi_by_group_ci, std
 
 
 class FairKMeans(FairPartitionBase):
@@ -430,71 +400,17 @@ class FairKMeans(FairPartitionBase):
         for i in range(self.n_groups):
             phi_by_group[i] = phi_matrix[partition_idxs[i]][partition_idxs[i + 1]]
             weights[i] = np.sum((s >= partition[i]) & (s <= partition[i + 1]))
-            
-        std = _compute_std(weights, phi_by_group)
-        phi_by_group_ci = _compute_phi_by_group_ci(partition, s, y)
         
-        self.std = std
         self.partition = partition
         self.weights = weights
         self.phi_by_group = phi_by_group
+
+        groups = self.predict(s)
+        phi_by_group_ci = _compute_phi_by_group_ci(groups, y)
         self.phi_by_group_ci = phi_by_group_ci
+
+        std = _compute_std(weights, phi_by_group)
+        self.std = std
 
         return self
     
-    def predict(self, s):
-        """
-        Compute group(s) for a given sensitive attribute value(s).
-        
-        Parameters
-        ----------
-        s : array-like
-            Sensitive attribute values.
-            
-        Returns
-        -------
-        groups : array-like
-            Group assignments for each sensitive attribute value.
-        """
-        return super().predict(s)
-
-    def print(self):
-        """Print information about the fitted FairKMeans partition."""
-        if self.partition is None:
-            print("FairKMeans model is not fitted yet.")
-            return
-            
-        print(f"FairKMeans with {self.n_groups} groups")
-        print(f"Partition boundaries: {self.partition}")
-        if self.weights is not None:
-            print(f"Group weights: {self.weights}")
-        if self.phi_by_group is not None:
-            print(f"Fairness metric (phi) by group: {self.phi_by_group}")
-        if hasattr(self, 'std') and self.std is not None:
-            print(f"Weighted standard deviation: {self.std:.6f}")
-
-    def recompute_fairness_statistics(self, s, y):
-        """
-        Compute fairness metric (phi) estimate, confidence intervals, and standard deviation for new data using the learned partition.
-
-        Parameters
-        ----------
-        s : array-like
-            Sensitive attribute values.
-        y : array-like
-            Binary outcome variable.
-
-        Returns
-        -------
-        phi_by_group : ndarray
-            Fairness metric (phi) estimate for each group.
-        phi_by_group_ci : ndarray
-            Confidence intervals for each group (center, lower bound, upper bound).
-        std : float
-            Weighted standard deviation.
-        """
-        phi_by_group = _compute_phi_by_group(self.partition, s, y)
-        phi_by_group_ci = _compute_phi_by_group_ci(self.partition, s, y)
-        weights = _compute_weights(self.partition, s)
-        std = _compute_std(weights, phi_by_group)
-        return phi_by_group, phi_by_group_ci, std
