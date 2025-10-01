@@ -131,7 +131,7 @@ class FairPartitionBase(ABC):
     Notes
     -----
     This is an abstract base class that must be subclassed. Subclasses must implement
-    the abstract methods `fit`, `recompute_fairness_statistics`, and `print`.
+    the abstract method `fit`.
     
     The fairness metric phi represents the difference between the probability of
     positive outcome for a group and the overall probability of positive outcome.
@@ -170,7 +170,7 @@ class FairPartitionBase(ABC):
             
         return groups
 
-    def recompute_fairness_statistics(self, s, y):
+    def predict_fairness_statistics(self, s, y):
         """
         Compute fairness metric (phi) estimate, confidence intervals, and standard deviation for new data using the learned partition.
 
