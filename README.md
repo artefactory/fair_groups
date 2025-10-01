@@ -77,6 +77,12 @@ Thank you for reviewing our work. If you encounter any issues or need clarificat
 
 ---
 
+## Citation
+
+If you consider this package or any of its feature useful for your research, consider citing our [paper](https://arxiv.org/abs/2507.11247).
+
+---
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
