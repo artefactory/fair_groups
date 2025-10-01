@@ -252,10 +252,6 @@ class FairGroups(FairPartitionBase):
     weights : ndarray of shape (n_groups,)
         Number of samples in each group after fitting.
     """
-    def __init__(self, n_groups, grid_size=100):
-        self.n_groups = n_groups
-        self.grid_size = grid_size
-
     def fit(self, s, y):
         """
         Fit the FairGroups partitioning to the data.
@@ -361,10 +357,6 @@ class FairKMeans(FairPartitionBase):
     This method only works in the case of monotonic fairness with respect to the sensitive attribute. 
     See the paper for more details.
     """
-    def __init__(self, n_groups, grid_size=100):
-        self.n_groups = n_groups
-        self.grid_size = grid_size
-
     def fit(self, s, y):
         """
         Fit the FairKMeans partitioning to the data.
