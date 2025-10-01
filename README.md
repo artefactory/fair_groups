@@ -77,30 +77,6 @@ Thank you for reviewing our work. If you encounter any issues or need clarificat
 
 ---
 
-## 🪛 Developer Guide
-
-### Available Make Commands
-
-- `make clean` - Remove build artifacts
-- `make install-dev` - Install development dependencies
-- `make build` - Build the package
-- `make install-wheel` - Install the package from wheel
-- `make test` - Run tests
-- `make lint` - Run linting
-- `make format` - Format code
-- `make build-and-install` - Build and install in one command
-
-You will probably want to install development dependencies:
-```bash
-make install-dev
-```
-
-### Building a New Version
-
-1. Update the version in `pyproject.toml`
-2. Run `make build` to create a new wheel
-3. Run `make install-wheel` to install the new version
-
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
