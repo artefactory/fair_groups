@@ -81,6 +81,15 @@ Thank you for reviewing our work. If you encounter any issues or need clarificat
 
 If you consider this package or any of its feature useful for your research, consider citing our [paper](https://arxiv.org/abs/2507.11247).
 
+```bibtex
+@article{shilova2025fairness,
+  title={Fairness-Aware Grouping for Continuous Sensitive Variables: Application for Debiasing Face Analysis with respect to Skin Tone},
+  author={Shilova, Veronika and Malherbe, Emmanuel and Palma, Giovanni and Risser, Laurent and Loubes, Jean-Michel},
+  journal={arXiv preprint arXiv:2507.11247},
+  year={2025}
+}
+```
+
 ---
 
 ## License
