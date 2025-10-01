@@ -60,9 +60,9 @@ def compute_phi_on_grid(
 
     Parameters
     ----------
-    s : array-like type=float
-        Sensitive attribute values, expressed as continous quantities.
-    y : array-like, type=boolean
+    s : array-like of float
+        Sensitive attribute values, expressed as continuous quantities.
+    y : array-like of bool
         Binary outcome variable.
     grid_size : int, default=100
         Number of grid points for partitioning.
