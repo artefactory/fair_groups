@@ -15,7 +15,7 @@ def compute_phi_sp_ci(s, y, alpha=0.95):
 
     Parameters
     ----------
-    s : array-like, type=boolean
+    s : array-like of bool
         Binary sensitive attribute (0/1 or boolean mask).
     y : array-like
         Binary outcome variable.
