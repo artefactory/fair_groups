@@ -148,9 +148,9 @@ def get_conditional_positive_y_proba(s, y, n_bins=100):
 
     Parameters
     ----------
-    s : array-like, type=float
-        Sensitive attribute values, expressed as continous quantities.
-    y : array-like, type=boolean
+    s : array-like of float
+        Sensitive attribute values, expressed as continuous quantities.
+    y : array-like of bool
         Binary outcome variable.
     n_bins : int, default=100
         Number of bins for s.
