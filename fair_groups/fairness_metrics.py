@@ -15,7 +15,7 @@ def compute_phi_sp_ci(s, y, alpha=0.95):
 
     Parameters
     ----------
-    s : array-like
+    s : array-like of bool
         Binary sensitive attribute (0/1 or boolean mask).
     y : array-like
         Binary outcome variable.
@@ -60,9 +60,9 @@ def compute_phi_on_grid(
 
     Parameters
     ----------
-    s : array-like
-        Sensitive attribute values.
-    y : array-like
+    s : array-like of float
+        Sensitive attribute values, expressed as continuous quantities.
+    y : array-like of bool
         Binary outcome variable.
     grid_size : int, default=100
         Number of grid points for partitioning.
@@ -148,9 +148,9 @@ def get_conditional_positive_y_proba(s, y, n_bins=100):
 
     Parameters
     ----------
-    s : array-like
-        Sensitive attribute values.
-    y : array-like
+    s : array-like of float
+        Sensitive attribute values, expressed as continuous quantities.
+    y : array-like of bool
         Binary outcome variable.
     n_bins : int, default=100
         Number of bins for s.
