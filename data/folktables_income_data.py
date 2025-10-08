@@ -4,6 +4,24 @@ from folktables import ACSDataSource, ACSIncome
 
 
 def load_folktables_data(sample_size=50000):
+    """
+    Load and preprocess the Folktables ACSIncome dataset.
+
+    This function loads data for California from the 2018 1-Year ACS survey
+    and preprocesses it to extract age and income.
+
+    Parameters
+    ----------
+    sample_size : int, optional
+        Number of samples to draw for faster computation. Defaults to 50000.
+
+    Returns
+    -------
+    age : np.ndarray
+        Array of ages.
+    income : np.ndarray
+        Array of binary income labels (0 for <$50,000, 1 for >=$50,000).
+    """
     print("Loading Folktables dataset...")
     data_source = ACSDataSource(survey_year='2018', horizon='1-Year', survey='person')
     acs_data = data_source.get_data(states=["CA"], download=True)
