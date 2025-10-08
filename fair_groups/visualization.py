@@ -34,7 +34,7 @@ def plot_partition_with_ci(partition, partition_ci, sensitive_var_name="ITA"):
     Parameters:
     ----------
     partition: list or array
-        List or array of partition points for the sensitive variable.   
+        List or array of partition points for the sensitive variable.
     partition_ci: array
         Array of shape (n_groups, 3) where each row contains [lower_bound, upper_bound, mean] for the phi value of each group.
     sensitive_var_name: str
@@ -108,16 +108,32 @@ def plot_group_summary_statistics_table(s, y, partition, phi_by_group, sensitive
         mask = (s >= partition[i]) & (s <= partition[i + 1])
         group_size = np.sum(mask)
         group_rate = y[mask].mean()
-        summary_data.append([f'Group {i + 1}', f'{partition[i]:.1f}-{partition[i+1]:.1f}', 
-                            group_size, f'{group_rate:.3f}', f'{phi_by_group[i]:.4f}'])
+        summary_data.append(
+            [
+                f"Group {i + 1}",
+                f"{partition[i]:.1f}-{partition[i + 1]:.1f}",
+                group_size,
+                f"{group_rate:.3f}",
+                f"{phi_by_group[i]:.4f}",
+            ]
+        )
 
-    table = plt.table(cellText=summary_data, 
-                      colLabels=['Group',  f'${sensitive_var_name}$ Range', 'Size', f'$P(Y=1|{sensitive_var_name})$', '$\Phi$'],
-                      cellLoc='center', loc='center')
+    table = plt.table(
+        cellText=summary_data,
+        colLabels=[
+            "Group",
+            f"${sensitive_var_name}$ Range",
+            "Size",
+            f"$P(Y=1|{sensitive_var_name})$",
+            r"$\Phi$",
+        ],
+        cellLoc="center",
+        loc="center",
+    )
     table.auto_set_font_size(False)
     table.set_fontsize(10)
     table.scale(1, 2)
-    plt.title('Group Summary Statistics')
+    plt.title("Group Summary Statistics")
     plt.tight_layout()
-    plt.axis('off')
+    plt.axis("off")
     plt.show()

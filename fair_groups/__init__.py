@@ -17,5 +17,5 @@ __all__ = [
     "FairKMeans",
     "compute_phi_sp_ci",
     "get_conditional_positive_y_proba",
-    "visualization"
+    "visualization",
 ]
