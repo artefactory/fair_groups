@@ -43,7 +43,6 @@ def load_folktables_data(sample_size=50000):
     print(f"Income over $50,000: {income_clean.mean():.3f}")
 
     # Sample a subset for faster computation (optional)
-    sample_size = 50000
     if len(age_clean) > sample_size:
         indices = np.random.choice(len(age_clean), sample_size, replace=False)
         age_sample = age_clean[indices]
