@@ -17,28 +17,17 @@ See notebooks folder for full examples of the usage.
 
 ## 🎯 Usage
 
-### Using pip
-
-```bash
-pip install -i https://test.pypi.org/simple/ fair-partition
-```
-
 ### From source
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/fair-partition.git
-cd fair-partition
+git clone git@github.com:artefactory/fair_groups.git
+cd fair_groups
 ```
 
-2. Build and install the package:
+2. Install the dependencies:
 ```bash
-make build
-```
-
-3. Import newly-built local version of the package:
-```bash
-pip install dist/fair_partition-$(VERSION)-py3-none-any.whl
+pip install -r requirements.txt
 ```
 
 ### Example
@@ -47,27 +36,21 @@ Here's a quick example showing how to use the package to create fair groups and 
 
 ```python
 import numpy as np
-from fair_partition.partition_estimation import FairGroups
-from fair_partition.visualization import plot_partition_with_ci
+from fair_groups.partition_estimation import FairGroups
+from fair_groups.visualization import plot_partition_with_ci
 
 # Create fair groups
-fair_groups = FairGroups(nb_groups=5)
+fair_groups = FairGroups(n_groups=5)
 fair_groups.fit(s, y)
 
 # Visualize the partition with confidence intervals
 plot_partition_with_ci(fair_groups.partition, fair_groups.phi_by_group_ci, 'S')
 ```
 
-This will create a plot showing:
+This code will create a plot showing:
 - The partition boundaries on the x-axis
 - The positive outcome rates for each group
 - Confidence intervals for the positive outcome rates
-
----
-
-## 🚧 Status: Work in Progress
-
-This repository is currently being cleaned and finalized. The full code, documentation, and instructions will be made available shortly. In the meantime, feel free to reach out if you have questions.
 
 ---
 
